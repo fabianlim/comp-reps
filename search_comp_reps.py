@@ -1,6 +1,6 @@
 # some hacking to flesh out ideas on searching equivalent comp graphs
 
-from sympy import reduced, Poly, groebner
+from sympy import reduced, groebner, var
 from re import match
 import time
 
@@ -8,7 +8,7 @@ import time
 # range_var
 def range_var(l, robj):
     " populate a range of variates "
-    return [l+str(i) for i in robj]
+    return var(','.join([l+str(i) for i in robj]))
 
 
 # str_poly
@@ -22,7 +22,10 @@ def str_poly(p):
 
 
 # builder
-def search_routine(function, initial_node, extensions):
+def search_routine(function, initial_node, extensions,
+                   num_initial_Y_assigned=1,
+                   num_initial_Y_variates=lambda x: len(x[0].free_symbols),
+                   groebner_routine=lambda f, G: reduced(f, G, *G.gens)):
     """
         This routine searches through a tree hierachy of comp representations.
         function: the function you want to compute
@@ -35,12 +38,12 @@ def search_routine(function, initial_node, extensions):
             m: number of Y variates
         """
 
-        # the routine *reduced* computes the remainder
+        # the groebner_routine *reduced* computes the remainder
         # compute the remainder wrt to a Groebner basis (GB)
         # GB uses lex monomial ordering here, with y's ordered higher than x's
         # this will cause the y's to be eliminated first
-        _, rem = reduced(
-            function, groebner(list(H), wrt=range_var('y', range(1, m+1, 1))))
+        _, rem = groebner_routine(
+            function, groebner(H, *range_var('y', range(1, m+1, 1))))
 
         if rem == 0:
             # return this
@@ -66,8 +69,8 @@ def search_routine(function, initial_node, extensions):
             pass  # for loop will barf if extensions return None
 
     # return
-    p = Poly(initial_node)
-    return search([p], 1, len(p.free_symbols))
+    return search(initial_node, num_initial_Y_assigned,
+                  num_initial_Y_variates(initial_node))
 
 
 # time_helper

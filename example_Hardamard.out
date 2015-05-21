@@ -1,0 +1,23 @@
+# Example: Hardamard Transform
+# matrix : ['x1 + x2 + x3 + x4 - y1', 'x1 - x2 + x3 - x4 - y2', 'x1 + x2 - x3 - x4 - y3', 'x1 - x2 - x3 + x4 - y4']
+# [12, 12, 'y1 - y5 - y6', 'y2 - y7 - y8', 'y3 - y9 - y10', 'y4 - y11 - y12', 'x3 + x4 - y5', 'x1 + x2 - y6', 'x3 - x4 - y7', 'x1 - x2 - y8', '-x3 - x4 - y9', 'x1 + x2 - y10', '-x3 + x4 - y11', 'x1 - x2 - y12', 'rem: 0']
+# time = 26.4343211651 secs
+
+# finds this comp rep which "recognizes" the kronecker structure of the
+# Hardamard transform. observe how 
+# y5 = -y9 = x3 + x4
+# y6 = y10 = x1 + x2
+# y7 = -y11 = x3 - x4
+# y8 = y12 = x1 - x2
+
+# therefore we can re-use intermediate computations when computing 
+# y1, .., y4
+# from above ...
+# y1 = y5 + y6
+# y2 = y7 + y8 
+# y3 = y9 + y10 = - y5 + y6
+# y4 = y11 + y12 = -y7 + y8
+# y9..y12 are redundent
+
+# the Kronecker structure allows the Hardamard Transform to compute in 
+# nlogn as opposed to n2 for a matrix-vector multiply
